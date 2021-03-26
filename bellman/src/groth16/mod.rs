@@ -50,7 +50,7 @@ impl<E: Engine> Proof<E> {
             let mut g1_repr = <E::G1Affine as GroupEncoding>::Repr::default();
             reader.read_exact(g1_repr.as_mut())?;
 
-            let affine = E::G1Affine::from_bytes(&g1_repr);
+            let affine = E::G1Affine::from_bytes_unchecked(&g1_repr);
             let affine = if affine.is_some().into() {
                 Ok(affine.unwrap())
             } else {
@@ -73,7 +73,7 @@ impl<E: Engine> Proof<E> {
             let mut g2_repr = <E::G2Affine as GroupEncoding>::Repr::default();
             reader.read_exact(g2_repr.as_mut())?;
 
-            let affine = E::G2Affine::from_bytes(&g2_repr);
+            let affine = E::G2Affine::from_bytes_unchecked(&g2_repr);
             let affine = if affine.is_some().into() {
                 Ok(affine.unwrap())
             } else {
