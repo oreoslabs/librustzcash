@@ -59,11 +59,11 @@ pub fn merkle_hash(depth: usize, lhs: &[u8; 32], rhs: &[u8; 32]) -> [u8; 32] {
         Personalization::MerkleTree(depth),
         lhs.iter()
             .copied()
-            .take(bls12_381::Scalar::NUM_BITS as usize)
+            .take(blstrs::Scalar::NUM_BITS as usize)
             .chain(
                 rhs.iter()
                     .copied()
-                    .take(bls12_381::Scalar::NUM_BITS as usize),
+                    .take(blstrs::Scalar::NUM_BITS as usize),
             ),
     ))
     .to_affine()
@@ -113,10 +113,10 @@ impl HashSer for Node {
     }
 }
 
-impl From<Node> for bls12_381::Scalar {
+impl From<Node> for blstrs::Scalar {
     fn from(node: Node) -> Self {
         // Tree nodes should be in the prime field.
-        bls12_381::Scalar::from_repr(node.repr).unwrap()
+        blstrs::Scalar::from_repr(node.repr).unwrap()
     }
 }
 
@@ -151,7 +151,7 @@ pub(crate) fn spend_sig_internal<R: RngCore>(
     let rsk = ask.randomize(ar);
 
     // We compute `rk` from there (needed for key prefixing)
-    let rk = PublicKey::from_private(&rsk, SPENDING_KEY_GENERATOR);
+    let rk = PublicKey::from_private(&rsk, *SPENDING_KEY_GENERATOR);
 
     // Compute the signature's message for rk/spend_auth_sig
     let mut data_to_be_signed = [0u8; 64];
@@ -159,7 +159,7 @@ pub(crate) fn spend_sig_internal<R: RngCore>(
     (&mut data_to_be_signed[32..64]).copy_from_slice(&sighash[..]);
 
     // Do the signing
-    rsk.sign(&data_to_be_signed, rng, SPENDING_KEY_GENERATOR)
+    rsk.sign(&data_to_be_signed, rng, *SPENDING_KEY_GENERATOR)
 }
 
 #[derive(Clone)]
@@ -170,8 +170,8 @@ pub struct ValueCommitment {
 
 impl ValueCommitment {
     pub fn commitment(&self) -> jubjub::SubgroupPoint {
-        (constants::VALUE_COMMITMENT_VALUE_GENERATOR * jubjub::Fr::from(self.value))
-            + (constants::VALUE_COMMITMENT_RANDOMNESS_GENERATOR * self.randomness)
+        (*constants::VALUE_COMMITMENT_VALUE_GENERATOR * jubjub::Fr::from(self.value))
+            + (*constants::VALUE_COMMITMENT_RANDOMNESS_GENERATOR * self.randomness)
     }
 }
 
@@ -185,7 +185,7 @@ impl ProofGenerationKey {
     pub fn to_viewing_key(&self) -> ViewingKey {
         ViewingKey {
             ak: self.ak,
-            nk: constants::PROOF_GENERATION_KEY_GENERATOR * self.nsk,
+            nk: *constants::PROOF_GENERATION_KEY_GENERATOR * self.nsk,
         }
     }
 }
@@ -198,7 +198,7 @@ pub struct ViewingKey {
 
 impl ViewingKey {
     pub fn rk(&self, ar: jubjub::Fr) -> jubjub::SubgroupPoint {
-        self.ak + constants::SPENDING_KEY_GENERATOR * ar
+        self.ak + *constants::SPENDING_KEY_GENERATOR * ar
     }
 
     pub fn ivk(&self) -> SaplingIvk {
@@ -421,10 +421,10 @@ impl PartialEq for Note {
 }
 
 impl Note {
-    pub fn uncommitted() -> bls12_381::Scalar {
+    pub fn uncommitted() -> blstrs::Scalar {
         // The smallest u-coordinate that is not on the curve
         // is one.
-        bls12_381::Scalar::one()
+        blstrs::Scalar::one()
     }
 
     /// Computes the note commitment, returning the full point.
@@ -454,7 +454,7 @@ impl Note {
         );
 
         // Compute final commitment
-        (constants::NOTE_COMMITMENT_RANDOMNESS_GENERATOR * self.rcm()) + hash_of_contents
+        (*constants::NOTE_COMMITMENT_RANDOMNESS_GENERATOR * self.rcm()) + hash_of_contents
     }
 
     /// Computes the nullifier given the viewing key and
@@ -462,7 +462,7 @@ impl Note {
     pub fn nf(&self, viewing_key: &ViewingKey, position: u64) -> Nullifier {
         // Compute rho = cm + position.G
         let rho = self.cm_full_point()
-            + (constants::NULLIFIER_POSITION_GENERATOR * jubjub::Fr::from(position));
+            + (*constants::NULLIFIER_POSITION_GENERATOR * jubjub::Fr::from(position));
 
         // Compute nf = BLAKE2s(nk | rho)
         Nullifier::from_slice(
@@ -479,7 +479,7 @@ impl Note {
     }
 
     /// Computes the note commitment
-    pub fn cmu(&self) -> bls12_381::Scalar {
+    pub fn cmu(&self) -> blstrs::Scalar {
         // The commitment is in the prime order subgroup, so mapping the
         // commitment to the u-coordinate is an injective encoding.
         jubjub::ExtendedPoint::from(self.cm_full_point())

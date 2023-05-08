@@ -1,7 +1,7 @@
 //! Abstractions over the proving system and parameters for ease of use.
 
-use bellman::groth16::{Parameters, PreparedVerifyingKey};
-use bls12_381::Bls12;
+use bellperson::groth16::{Parameters, PreparedVerifyingKey};
+use blstrs::Bls12;
 use std::path::Path;
 use zcash_primitives::{
     merkle_tree::MerklePath,
@@ -152,7 +152,7 @@ impl TxProver for LocalTxProver {
         rseed: Rseed,
         ar: jubjub::Fr,
         value: u64,
-        anchor: bls12_381::Scalar,
+        anchor: blstrs::Scalar,
         merkle_path: MerklePath<Node>,
     ) -> Result<([u8; GROTH_PROOF_SIZE], jubjub::ExtendedPoint, PublicKey), ()> {
         let (proof, cv, rk) = ctx.spend_proof(

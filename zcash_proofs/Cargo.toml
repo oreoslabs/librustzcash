@@ -16,14 +16,15 @@ categories = ["cryptography::cryptocurrencies"]
 all-features = true
 
 [dependencies]
-bellman = { version = "0.13.1", default-features = false, features = ["groth16"] }
+bellperson = { path = "../../bellperson", features = ["groth16", "opencl"] }
 blake2b_simd = "1"
 bls12_381 = "0.7"
+blstrs = { version = "0.6.0", features = ["__private_bench"] }
 byteorder = "1"
 directories = { version = "4", optional = true }
 ff = "0.12"
 group = "0.12"
-jubjub = "0.9"
+jubjub = { path = "../../jubjub" }
 lazy_static = "1"
 minreq = { version = "2", features = ["https"], optional = true }
 rand_core = "0.6"
@@ -44,7 +45,7 @@ default = ["local-prover", "multicore"]
 bundled-prover = ["wagyu-zcash-parameters"]
 download-params = ["minreq"]
 local-prover = ["directories"]
-multicore = ["bellman/multicore"]
+multicore = []
 
 [lib]
 bench = false

@@ -45,7 +45,7 @@ impl ExpandedSpendingKey {
 
     pub fn proof_generation_key(&self) -> ProofGenerationKey {
         ProofGenerationKey {
-            ak: SPENDING_KEY_GENERATOR * self.ask,
+            ak: *SPENDING_KEY_GENERATOR * self.ask,
             nsk: self.nsk,
         }
     }
@@ -103,8 +103,8 @@ impl FullViewingKey {
     pub fn from_expanded_spending_key(expsk: &ExpandedSpendingKey) -> Self {
         FullViewingKey {
             vk: ViewingKey {
-                ak: SPENDING_KEY_GENERATOR * expsk.ask,
-                nk: PROOF_GENERATION_KEY_GENERATOR * expsk.nsk,
+                ak: *SPENDING_KEY_GENERATOR * expsk.ask,
+                nk: *PROOF_GENERATION_KEY_GENERATOR * expsk.nsk,
             },
             ovk: expsk.ovk,
         }

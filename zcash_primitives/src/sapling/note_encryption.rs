@@ -127,6 +127,27 @@ impl<P: consensus::Parameters> SaplingDomain<P> {
     }
 }
 
+pub struct SaplingExtractedCommitmentBytes(pub [u8; 32]);
+
+impl From<blstrs::Scalar> for SaplingExtractedCommitmentBytes {
+    fn from(value: blstrs::Scalar) -> SaplingExtractedCommitmentBytes {
+        SaplingExtractedCommitmentBytes(value.to_bytes_le())
+    }
+}
+
+impl<'a> From<&'a blstrs::Scalar> for SaplingExtractedCommitmentBytes {
+    fn from(value: &'a blstrs::Scalar) -> SaplingExtractedCommitmentBytes {
+        SaplingExtractedCommitmentBytes(value.to_bytes_le())
+    }
+}
+
+impl PartialEq for SaplingExtractedCommitmentBytes {
+    fn eq(&self, other: &Self) -> bool {
+        self.0 == other.0
+    }
+}
+impl Eq for SaplingExtractedCommitmentBytes {}
+
 impl<P: consensus::Parameters> Domain for SaplingDomain<P> {
     type EphemeralSecretKey = jubjub::Scalar;
     // It is acceptable for this to be a point because we enforce by consensus that
@@ -141,8 +162,8 @@ impl<P: consensus::Parameters> Domain for SaplingDomain<P> {
     type IncomingViewingKey = SaplingIvk;
     type OutgoingViewingKey = OutgoingViewingKey;
     type ValueCommitment = jubjub::ExtendedPoint;
-    type ExtractedCommitment = bls12_381::Scalar;
-    type ExtractedCommitmentBytes = [u8; 32];
+    type ExtractedCommitment = blstrs::Scalar;
+    type ExtractedCommitmentBytes = SaplingExtractedCommitmentBytes;
     type Memo = MemoBytes;
 
     fn derive_esk(note: &Self::Note) -> Option<Self::EphemeralSecretKey> {
@@ -223,7 +244,7 @@ impl<P: consensus::Parameters> Domain for SaplingDomain<P> {
         cmu_bytes: &Self::ExtractedCommitmentBytes,
         epk: &EphemeralKeyBytes,
     ) -> OutgoingCipherKey {
-        prf_ock(ovk, cv, cmu_bytes, epk)
+        prf_ock(ovk, cv, &cmu_bytes.0, epk)
     }
 
     fn outgoing_plaintext_bytes(
@@ -589,7 +610,7 @@ mod tests {
     fn reencrypt_enc_ciphertext(
         ovk: &OutgoingViewingKey,
         cv: &jubjub::ExtendedPoint,
-        cmu: &bls12_381::Scalar,
+        cmu: &blstrs::Scalar,
         ephemeral_key: &EphemeralKeyBytes,
         enc_ciphertext: &mut [u8; ENC_CIPHERTEXT_SIZE],
         out_ciphertext: &[u8; OUT_CIPHERTEXT_SIZE],
@@ -725,7 +746,7 @@ mod tests {
 
         for &height in heights.iter() {
             let (_, _, ivk, mut output) = random_enc_ciphertext(height, &mut rng);
-            output.cmu = bls12_381::Scalar::random(&mut rng);
+            output.cmu = blstrs::Scalar::random(&mut rng);
 
             assert_eq!(
                 try_sapling_note_decryption(&TEST_NETWORK, height, &ivk, &output),
@@ -895,7 +916,7 @@ mod tests {
 
         for &height in heights.iter() {
             let (_, _, ivk, mut output) = random_enc_ciphertext(height, &mut rng);
-            output.cmu = bls12_381::Scalar::random(&mut rng);
+            output.cmu = blstrs::Scalar::random(&mut rng);
 
             assert_eq!(
                 try_sapling_compact_note_decryption(
@@ -1079,7 +1100,7 @@ mod tests {
 
         for &height in heights.iter() {
             let (ovk, ock, _, mut output) = random_enc_ciphertext(height, &mut rng);
-            output.cmu = bls12_381::Scalar::random(&mut rng);
+            output.cmu = blstrs::Scalar::random(&mut rng);
 
             assert_eq!(
                 try_sapling_output_recovery(&TEST_NETWORK, height, &ovk, &output,),
@@ -1286,9 +1307,9 @@ mod tests {
     fn test_vectors() {
         let test_vectors = crate::test_vectors::note_encryption::make_test_vectors();
 
-        macro_rules! read_bls12_381_scalar {
+        macro_rules! read_blstrs_scalar {
             ($field:expr) => {{
-                bls12_381::Scalar::from_repr($field[..].try_into().unwrap()).unwrap()
+                blstrs::Scalar::from_repr($field[..].try_into().unwrap()).unwrap()
             }};
         }
 
@@ -1315,7 +1336,7 @@ mod tests {
             let pk_d = read_point!(tv.default_pk_d).into_subgroup().unwrap();
             let rcm = read_jubjub_scalar!(tv.rcm);
             let cv = read_point!(tv.cv);
-            let cmu = read_bls12_381_scalar!(tv.cmu);
+            let cmu = read_blstrs_scalar!(tv.cmu);
             let esk = read_jubjub_scalar!(tv.esk);
             let ephemeral_key = EphemeralKeyBytes(tv.epk);
 

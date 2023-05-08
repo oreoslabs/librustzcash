@@ -1,8 +1,8 @@
 #[macro_use]
 extern crate criterion;
 
-use bellman::groth16::*;
-use bls12_381::Bls12;
+use bellperson::groth16::*;
+use blstrs::Bls12;
 use criterion::Criterion;
 use ff::Field;
 use group::Group;
@@ -66,9 +66,9 @@ fn criterion_benchmark(c: &mut Criterion) {
 
         let commitment_randomness = jubjub::Fr::random(&mut rng);
         let auth_path =
-            vec![Some((bls12_381::Scalar::random(&mut rng), rng.next_u32() % 2 != 0)); TREE_DEPTH];
+            vec![Some((blstrs::Scalar::random(&mut rng), rng.next_u32() % 2 != 0)); TREE_DEPTH];
         let ar = jubjub::Fr::random(&mut rng);
-        let anchor = bls12_381::Scalar::random(&mut rng);
+        let anchor = blstrs::Scalar::random(&mut rng);
 
         b.iter(|| {
             create_random_proof(

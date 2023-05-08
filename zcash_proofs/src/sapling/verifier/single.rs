@@ -1,5 +1,5 @@
-use bellman::groth16::{verify_proof, PreparedVerifyingKey, Proof};
-use bls12_381::Bls12;
+use bellperson::groth16::{verify_proof, PreparedVerifyingKey, Proof};
+use blstrs::Bls12;
 use zcash_primitives::{
     constants::{SPENDING_KEY_GENERATOR, VALUE_COMMITMENT_RANDOMNESS_GENERATOR},
     sapling::redjubjub::{PublicKey, Signature},
@@ -29,7 +29,7 @@ impl SaplingVerificationContext {
     pub fn check_spend(
         &mut self,
         cv: jubjub::ExtendedPoint,
-        anchor: bls12_381::Scalar,
+        anchor: blstrs::Scalar,
         nullifier: &[u8; 32],
         rk: PublicKey,
         sighash_value: &[u8; 32],
@@ -51,7 +51,7 @@ impl SaplingVerificationContext {
                 rk.verify_with_zip216(
                     &msg,
                     &spend_auth_sig,
-                    SPENDING_KEY_GENERATOR,
+                    *SPENDING_KEY_GENERATOR,
                     zip216_enabled,
                 )
             },
@@ -66,7 +66,7 @@ impl SaplingVerificationContext {
     pub fn check_output(
         &mut self,
         cv: jubjub::ExtendedPoint,
-        cmu: bls12_381::Scalar,
+        cmu: blstrs::Scalar,
         epk: jubjub::ExtendedPoint,
         zkproof: Proof<Bls12>,
         verifying_key: &PreparedVerifyingKey<Bls12>,
@@ -94,7 +94,7 @@ impl SaplingVerificationContext {
                 bvk.verify_with_zip216(
                     &msg,
                     &binding_sig,
-                    VALUE_COMMITMENT_RANDOMNESS_GENERATOR,
+                    *VALUE_COMMITMENT_RANDOMNESS_GENERATOR,
                     self.zip216_enabled,
                 )
             },

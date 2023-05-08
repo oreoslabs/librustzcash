@@ -1,5 +1,6 @@
-use bellman::{gadgets::multipack, groth16::Proof};
-use bls12_381::Bls12;
+use bellperson::{gadgets::multipack, groth16::Proof};
+use blstrs::Bls12;
+use ff::Field;
 use group::{Curve, GroupEncoding};
 use zcash_primitives::{
     sapling::redjubjub::{PublicKey, Signature},
@@ -11,8 +12,8 @@ use super::compute_value_balance;
 mod single;
 pub use single::SaplingVerificationContext;
 
-mod batch;
-pub use batch::BatchValidator;
+// mod batch;
+// pub use batch::BatchValidator;
 
 /// A context object for verifying the Sapling components of a Zcash transaction.
 struct SaplingVerificationContextInner {
@@ -34,7 +35,7 @@ impl SaplingVerificationContextInner {
     fn check_spend<C>(
         &mut self,
         cv: jubjub::ExtendedPoint,
-        anchor: bls12_381::Scalar,
+        anchor: blstrs::Scalar,
         nullifier: &[u8; 32],
         rk: PublicKey,
         sighash_value: &[u8; 32],
@@ -42,7 +43,7 @@ impl SaplingVerificationContextInner {
         zkproof: Proof<Bls12>,
         verifier_ctx: &mut C,
         spend_auth_sig_verifier: impl FnOnce(&mut C, PublicKey, [u8; 64], Signature) -> bool,
-        proof_verifier: impl FnOnce(&mut C, Proof<Bls12>, [bls12_381::Scalar; 7]) -> bool,
+        proof_verifier: impl FnOnce(&mut C, Proof<Bls12>, [blstrs::Scalar; 7]) -> bool,
     ) -> bool {
         if (cv.is_small_order() | rk.0.is_small_order()).into() {
             return false;
@@ -66,7 +67,7 @@ impl SaplingVerificationContextInner {
         }
 
         // Construct public input for circuit
-        let mut public_input = [bls12_381::Scalar::zero(); 7];
+        let mut public_input = [blstrs::Scalar::zero(); 7];
         {
             let affine = rk_affine;
             let (u, v) = (affine.get_u(), affine.get_v());
@@ -101,10 +102,10 @@ impl SaplingVerificationContextInner {
     fn check_output(
         &mut self,
         cv: jubjub::ExtendedPoint,
-        cmu: bls12_381::Scalar,
+        cmu: blstrs::Scalar,
         epk: jubjub::ExtendedPoint,
         zkproof: Proof<Bls12>,
-        proof_verifier: impl FnOnce(Proof<Bls12>, [bls12_381::Scalar; 5]) -> bool,
+        proof_verifier: impl FnOnce(Proof<Bls12>, [blstrs::Scalar; 5]) -> bool,
     ) -> bool {
         if (cv.is_small_order() | epk.is_small_order()).into() {
             return false;
@@ -114,7 +115,7 @@ impl SaplingVerificationContextInner {
         self.cv_sum -= cv;
 
         // Construct public input for circuit
-        let mut public_input = [bls12_381::Scalar::zero(); 5];
+        let mut public_input = [blstrs::Scalar::zero(); 5];
         {
             let affine = cv.to_affine();
             let (u, v) = (affine.get_u(), affine.get_v());

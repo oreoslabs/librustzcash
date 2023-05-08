@@ -9,8 +9,8 @@
 // Temporary until we have addressed all Result<T, ()> cases.
 #![allow(clippy::result_unit_err)]
 
-use bellman::groth16::{prepare_verifying_key, Parameters, PreparedVerifyingKey, VerifyingKey};
-use bls12_381::Bls12;
+use bellperson::groth16::{prepare_verifying_key, Parameters, PreparedVerifyingKey, VerifyingKey};
+use blstrs::Bls12;
 use std::fs::File;
 use std::io::{self, BufReader};
 use std::path::Path;

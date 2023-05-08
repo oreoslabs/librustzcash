@@ -1,18 +1,18 @@
 //! The "hybrid Sprout" circuit.
 //!
 //! "Hybrid Sprout" refers to the implementation of the [Sprout statement] in
-//! `bellman` for [`groth16`], instead of the [original implementation][oldimpl]
+//! `bellperson` for [`groth16`], instead of the [original implementation][oldimpl]
 //! using [`libsnark`] for [BCTV14].
 //!
 //! [Sprout statement]: https://zips.z.cash/protocol/protocol.pdf#joinsplitstatement
-//! [`groth16`]: bellman::groth16
+//! [`groth16`]: bellperson::groth16
 //! [oldimpl]: https://github.com/zcash/zcash/tree/v2.0.7/src/zcash/circuit
 //! [`libsnark`]: https://github.com/scipr-lab/libsnark
 //! [BCTV14]: https://eprint.iacr.org/2013/879
 
-use bellman::gadgets::boolean::{AllocatedBit, Boolean};
-use bellman::gadgets::multipack::pack_into_inputs;
-use bellman::{Circuit, ConstraintSystem, LinearCombination, SynthesisError};
+use bellperson::gadgets::boolean::{AllocatedBit, Boolean};
+use bellperson::gadgets::multipack::pack_into_inputs;
+use bellperson::{Circuit, ConstraintSystem, LinearCombination, SynthesisError};
 use ff::PrimeField;
 
 mod commitment;
@@ -336,8 +336,8 @@ where
 #[test]
 #[ignore]
 fn test_sprout_constraints() {
-    use bellman::gadgets::test::*;
-    use bls12_381::Scalar;
+    use bellperson::gadgets::test::*;
+    use blstrs::Scalar;
 
     use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
@@ -460,7 +460,7 @@ fn test_sprout_constraints() {
             .write_u64::<LittleEndian>(vpub_new.unwrap())
             .unwrap();
 
-        use bellman::gadgets::multipack;
+        use bellperson::gadgets::multipack;
 
         let expected_inputs = multipack::bytes_to_bits(&expected_inputs);
         let expected_inputs = multipack::compute_multipacking(&expected_inputs);

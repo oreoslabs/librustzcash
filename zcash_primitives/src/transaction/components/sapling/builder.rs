@@ -190,7 +190,7 @@ impl SaplingMetadata {
 
 pub struct SaplingBuilder<P> {
     params: P,
-    anchor: Option<bls12_381::Scalar>,
+    anchor: Option<blstrs::Scalar>,
     target_height: BlockHeight,
     value_balance: Amount,
     spends: Vec<SpendDescriptionInfo>,
@@ -243,9 +243,9 @@ impl<P: consensus::Parameters> SaplingBuilder<P> {
         merkle_path: MerklePath<Node>,
     ) -> Result<(), Error> {
         // Consistency check: all anchors must equal the first one
-        let cmu = Node::new(note.cmu().into());
+        let cmu = Node::new(note.cmu().to_bytes_le());
         if let Some(anchor) = self.anchor {
-            let path_root: bls12_381::Scalar = merkle_path.root(cmu).into();
+            let path_root: blstrs::Scalar = merkle_path.root(cmu).into();
             if path_root != anchor {
                 return Err(Error::AnchorMismatch);
             }

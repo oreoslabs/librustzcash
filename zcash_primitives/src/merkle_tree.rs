@@ -324,13 +324,13 @@ impl<Node: Hashable> CommitmentTree<Node> {
 ///
 /// let mut tree = CommitmentTree::<Node>::empty();
 ///
-/// tree.append(Node::new(bls12_381::Scalar::random(&mut rng).to_repr()));
-/// tree.append(Node::new(bls12_381::Scalar::random(&mut rng).to_repr()));
+/// tree.append(Node::new(blstrs::Scalar::random(&mut rng).to_repr()));
+/// tree.append(Node::new(blstrs::Scalar::random(&mut rng).to_repr()));
 /// let mut witness = IncrementalWitness::from_tree(&tree);
 /// assert_eq!(witness.position(), 1);
 /// assert_eq!(tree.root(), witness.root());
 ///
-/// let cmu = Node::new(bls12_381::Scalar::random(&mut rng).to_repr());
+/// let cmu = Node::new(blstrs::Scalar::random(&mut rng).to_repr());
 /// tree.append(cmu);
 /// witness.append(cmu);
 /// assert_eq!(tree.root(), witness.root());

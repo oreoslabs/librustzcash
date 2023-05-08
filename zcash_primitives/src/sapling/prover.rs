@@ -33,7 +33,7 @@ pub trait TxProver {
         rseed: Rseed,
         ar: jubjub::Fr,
         value: u64,
-        anchor: bls12_381::Scalar,
+        anchor: blstrs::Scalar,
         merkle_path: MerklePath<Node>,
     ) -> Result<([u8; GROTH_PROOF_SIZE], jubjub::ExtendedPoint, PublicKey), ()>;
 
@@ -94,7 +94,7 @@ pub mod mock {
             _rcm: Rseed,
             ar: jubjub::Fr,
             value: u64,
-            _anchor: bls12_381::Scalar,
+            _anchor: blstrs::Scalar,
             _merkle_path: MerklePath<Node>,
         ) -> Result<([u8; GROTH_PROOF_SIZE], jubjub::ExtendedPoint, PublicKey), ()> {
             let mut rng = OsRng;

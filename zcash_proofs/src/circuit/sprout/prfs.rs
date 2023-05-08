@@ -1,6 +1,6 @@
-use bellman::gadgets::boolean::Boolean;
-use bellman::gadgets::sha256::sha256_block_no_padding;
-use bellman::{ConstraintSystem, SynthesisError};
+use bellperson::gadgets::boolean::Boolean;
+use bellperson::gadgets::sha256::sha256_block_no_padding;
+use bellperson::{ConstraintSystem, SynthesisError};
 use ff::PrimeField;
 
 #[allow(clippy::many_single_char_names)]

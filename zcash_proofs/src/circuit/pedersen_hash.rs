@@ -1,9 +1,9 @@
 //! Gadget for Zcash's Pedersen hash.
 
 use super::ecc::{EdwardsPoint, MontgomeryPoint};
-use bellman::gadgets::boolean::Boolean;
-use bellman::gadgets::lookup::*;
-use bellman::{ConstraintSystem, SynthesisError};
+use bellperson::gadgets::boolean::Boolean;
+use bellperson::gadgets::lookup::*;
+use bellperson::{ConstraintSystem, SynthesisError};
 pub use zcash_primitives::sapling::pedersen_hash::Personalization;
 
 use crate::constants::PEDERSEN_CIRCUIT_GENERATORS;
@@ -22,7 +22,7 @@ pub fn pedersen_hash<CS>(
     bits: &[Boolean],
 ) -> Result<EdwardsPoint, SynthesisError>
 where
-    CS: ConstraintSystem<bls12_381::Scalar>,
+    CS: ConstraintSystem<blstrs::Scalar>,
 {
     let personalization = get_constant_bools(&personalization);
     assert_eq!(personalization.len(), 6);
@@ -105,8 +105,8 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use bellman::gadgets::boolean::{AllocatedBit, Boolean};
-    use bellman::gadgets::test::*;
+    use bellperson::gadgets::boolean::{AllocatedBit, Boolean};
+    use bellperson::gadgets::test::*;
     use ff::PrimeField;
     use group::Curve;
     use rand_core::{RngCore, SeedableRng};
@@ -292,11 +292,11 @@ mod test {
 
             assert_eq!(
                 res.get_u().get_value().unwrap(),
-                bls12_381::Scalar::from_str_vartime(expected_us[length - 300]).unwrap()
+                blstrs::Scalar::from_str_vartime(expected_us[length - 300]).unwrap()
             );
             assert_eq!(
                 res.get_v().get_value().unwrap(),
-                bls12_381::Scalar::from_str_vartime(expected_vs[length - 300]).unwrap()
+                blstrs::Scalar::from_str_vartime(expected_vs[length - 300]).unwrap()
             );
         }
     }

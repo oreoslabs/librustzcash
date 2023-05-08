@@ -12,7 +12,7 @@ use zcash_note_encryption::{
 use crate::{
     consensus,
     sapling::{
-        note_encryption::SaplingDomain,
+        note_encryption::{SaplingDomain, SaplingExtractedCommitmentBytes},
         redjubjub::{self, PublicKey, Signature},
         Nullifier,
     },
@@ -97,7 +97,7 @@ impl<A: Authorization> Bundle<A> {
 #[derive(Clone)]
 pub struct SpendDescription<A: Authorization> {
     pub cv: jubjub::ExtendedPoint,
-    pub anchor: bls12_381::Scalar,
+    pub anchor: blstrs::Scalar,
     pub nullifier: Nullifier,
     pub rk: PublicKey,
     pub zkproof: A::Proof,
@@ -135,10 +135,10 @@ pub fn read_point<R: Read>(mut reader: R, field: &str) -> io::Result<jubjub::Ext
 
 /// Consensus rules (§7.3) & (§7.4):
 /// - Canonical encoding is enforced here
-pub fn read_base<R: Read>(mut reader: R, field: &str) -> io::Result<bls12_381::Scalar> {
+pub fn read_base<R: Read>(mut reader: R, field: &str) -> io::Result<blstrs::Scalar> {
     let mut f = [0u8; 32];
     reader.read_exact(&mut f)?;
-    Option::from(bls12_381::Scalar::from_repr(f)).ok_or_else(|| {
+    Option::from(blstrs::Scalar::from_repr(f)).ok_or_else(|| {
         io::Error::new(
             io::ErrorKind::InvalidInput,
             format!("{} not in field", field),
@@ -237,7 +237,7 @@ impl SpendDescriptionV5 {
 
     pub fn into_spend_description(
         self,
-        anchor: bls12_381::Scalar,
+        anchor: blstrs::Scalar,
         zkproof: GrothProofBytes,
         spend_auth_sig: Signature,
     ) -> SpendDescription<Authorized> {
@@ -255,7 +255,7 @@ impl SpendDescriptionV5 {
 #[derive(Clone)]
 pub struct OutputDescription<Proof> {
     pub cv: jubjub::ExtendedPoint,
-    pub cmu: bls12_381::Scalar,
+    pub cmu: blstrs::Scalar,
     pub ephemeral_key: EphemeralKeyBytes,
     pub enc_ciphertext: [u8; 580],
     pub out_ciphertext: [u8; 80],
@@ -269,8 +269,8 @@ impl<P: consensus::Parameters, A> ShieldedOutput<SaplingDomain<P>, ENC_CIPHERTEX
         self.ephemeral_key.clone()
     }
 
-    fn cmstar_bytes(&self) -> [u8; 32] {
-        self.cmu.to_repr()
+    fn cmstar_bytes(&self) -> SaplingExtractedCommitmentBytes {
+        SaplingExtractedCommitmentBytes(self.cmu.to_repr())
     }
 
     fn enc_ciphertext(&self) -> &[u8; ENC_CIPHERTEXT_SIZE] {
@@ -343,7 +343,7 @@ impl OutputDescription<GrothProofBytes> {
 #[derive(Clone)]
 pub struct OutputDescriptionV5 {
     pub cv: jubjub::ExtendedPoint,
-    pub cmu: bls12_381::Scalar,
+    pub cmu: blstrs::Scalar,
     pub ephemeral_key: EphemeralKeyBytes,
     pub enc_ciphertext: [u8; 580],
     pub out_ciphertext: [u8; 80],
@@ -391,7 +391,7 @@ impl OutputDescriptionV5 {
 
 pub struct CompactOutputDescription {
     pub ephemeral_key: EphemeralKeyBytes,
-    pub cmu: bls12_381::Scalar,
+    pub cmu: blstrs::Scalar,
     pub enc_ciphertext: [u8; COMPACT_NOTE_SIZE],
 }
 
@@ -412,8 +412,8 @@ impl<P: consensus::Parameters> ShieldedOutput<SaplingDomain<P>, COMPACT_NOTE_SIZ
         self.ephemeral_key.clone()
     }
 
-    fn cmstar_bytes(&self) -> [u8; 32] {
-        self.cmu.to_repr()
+    fn cmstar_bytes(&self) -> SaplingExtractedCommitmentBytes {
+        SaplingExtractedCommitmentBytes(self.cmu.to_repr())
     }
 
     fn enc_ciphertext(&self) -> &[u8; COMPACT_NOTE_SIZE] {
@@ -459,7 +459,7 @@ pub mod testing {
             cv in arb_extended_point(),
             anchor in vec(any::<u8>(), 64)
                 .prop_map(|v| <[u8;64]>::try_from(v.as_slice()).unwrap())
-                .prop_map(|v| bls12_381::Scalar::from_bytes_wide(&v)),
+                .prop_map(|v| blstrs::Scalar::from_bytes_wide(&v)),
             nullifier in prop::array::uniform32(any::<u8>())
                 .prop_map(|v| Nullifier::from_slice(&v).unwrap()),
             zkproof in vec(any::<u8>(), GROTH_PROOF_SIZE)
@@ -488,7 +488,7 @@ pub mod testing {
             cv in arb_extended_point(),
             cmu in vec(any::<u8>(), 64)
                 .prop_map(|v| <[u8;64]>::try_from(v.as_slice()).unwrap())
-                .prop_map(|v| bls12_381::Scalar::from_bytes_wide(&v)),
+                .prop_map(|v| blstrs::Scalar::from_bytes_wide(&v)),
             enc_ciphertext in vec(any::<u8>(), 580)
                 .prop_map(|v| <[u8;580]>::try_from(v.as_slice()).unwrap()),
             epk in arb_extended_point(),

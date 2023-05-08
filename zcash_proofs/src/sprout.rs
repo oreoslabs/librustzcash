@@ -1,10 +1,10 @@
 //! APIs for creating and verifying Sprout proofs.
 
-use bellman::{
+use bellperson::{
     gadgets::multipack,
     groth16::{self, create_random_proof, Parameters, PreparedVerifyingKey, Proof},
 };
-use bls12_381::Bls12;
+use blstrs::Bls12;
 use rand_core::OsRng;
 
 use crate::circuit::sprout::*;

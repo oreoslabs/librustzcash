@@ -1,8 +1,8 @@
-use bellman::{
+use bellperson::{
     gadgets::multipack,
     groth16::{create_random_proof, verify_proof, Parameters, PreparedVerifyingKey, Proof},
 };
-use bls12_381::Bls12;
+use blstrs::Bls12;
 use ff::Field;
 use group::{Curve, GroupEncoding};
 use rand_core::OsRng;
@@ -53,7 +53,7 @@ impl SaplingProvingContext {
         rseed: Rseed,
         ar: jubjub::Fr,
         value: u64,
-        anchor: bls12_381::Scalar,
+        anchor: blstrs::Scalar,
         merkle_path: MerklePath<Node>,
         proving_key: &Parameters<Bls12>,
         verifying_key: &PreparedVerifyingKey<Bls12>,
@@ -86,7 +86,7 @@ impl SaplingProvingContext {
         let payment_address = viewing_key.to_payment_address(diversifier).ok_or(())?;
 
         // This is the result of the re-randomization, we compute it for the caller
-        let rk = PublicKey(proof_generation_key.ak.into()).randomize(ar, SPENDING_KEY_GENERATOR);
+        let rk = PublicKey(proof_generation_key.ak.into()).randomize(ar, *SPENDING_KEY_GENERATOR);
 
         // Let's compute the nullifier while we have the position
         let note = Note {
@@ -119,7 +119,7 @@ impl SaplingProvingContext {
 
         // Try to verify the proof:
         // Construct public input for circuit
-        let mut public_input = [bls12_381::Scalar::zero(); 7];
+        let mut public_input = [blstrs::Scalar::zero(); 7];
         {
             let affine = rk.0.to_affine();
             let (u, v) = (affine.get_u(), affine.get_v());
@@ -222,7 +222,7 @@ impl SaplingProvingContext {
         let bsk = PrivateKey(self.bsk);
 
         // Grab the `bvk` using DerivePublic.
-        let bvk = PublicKey::from_private(&bsk, VALUE_COMMITMENT_RANDOMNESS_GENERATOR);
+        let bvk = PublicKey::from_private(&bsk, *VALUE_COMMITMENT_RANDOMNESS_GENERATOR);
 
         // In order to check internal consistency, let's use the accumulated value
         // commitments (as the verifier would) and apply value_balance to compare
@@ -249,7 +249,7 @@ impl SaplingProvingContext {
         Ok(bsk.sign(
             &data_to_be_signed,
             &mut rng,
-            VALUE_COMMITMENT_RANDOMNESS_GENERATOR,
+            *VALUE_COMMITMENT_RANDOMNESS_GENERATOR,
         ))
     }
 }

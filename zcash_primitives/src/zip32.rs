@@ -281,7 +281,7 @@ pub fn sapling_derive_internal_fvk(
     let r = prf_expand(i.as_bytes(), &[0x18]);
     let r = r.as_bytes();
     // PROOF_GENERATION_KEY_GENERATOR = \mathcal{H}^Sapling
-    let nk_internal = PROOF_GENERATION_KEY_GENERATOR * i_nsk + fvk.vk.nk;
+    let nk_internal = *PROOF_GENERATION_KEY_GENERATOR * i_nsk + fvk.vk.nk;
     let dk_internal = DiversifierKey(r[..32].try_into().unwrap());
     let ovk_internal = OutgoingViewingKey(r[32..].try_into().unwrap());
 
@@ -582,8 +582,8 @@ impl ExtendedFullViewingKey {
             fvk: {
                 let i_ask = jubjub::Fr::from_bytes_wide(prf_expand(i_l, &[0x13]).as_array());
                 let i_nsk = jubjub::Fr::from_bytes_wide(prf_expand(i_l, &[0x14]).as_array());
-                let ak = (SPENDING_KEY_GENERATOR * i_ask) + self.fvk.vk.ak;
-                let nk = (PROOF_GENERATION_KEY_GENERATOR * i_nsk) + self.fvk.vk.nk;
+                let ak = (*SPENDING_KEY_GENERATOR * i_ask) + self.fvk.vk.ak;
+                let nk = (*PROOF_GENERATION_KEY_GENERATOR * i_nsk) + self.fvk.vk.nk;
 
                 FullViewingKey {
                     vk: ViewingKey { ak, nk },

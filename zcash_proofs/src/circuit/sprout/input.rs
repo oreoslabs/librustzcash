@@ -1,6 +1,6 @@
-use bellman::gadgets::boolean::{AllocatedBit, Boolean};
-use bellman::gadgets::sha256::sha256_block_no_padding;
-use bellman::{ConstraintSystem, SynthesisError};
+use bellperson::gadgets::boolean::{AllocatedBit, Boolean};
+use bellperson::gadgets::sha256::sha256_block_no_padding;
+use bellperson::{ConstraintSystem, SynthesisError};
 use ff::PrimeField;
 
 use super::commitment::note_comm;
