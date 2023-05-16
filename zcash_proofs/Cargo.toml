@@ -16,15 +16,14 @@ categories = ["cryptography::cryptocurrencies"]
 all-features = true
 
 [dependencies]
-bellperson = { path = "../../bellperson", features = ["groth16", "opencl"] }
+bellperson = { git = "https://github.com/iron-fish/bellperson.git", branch = "blstrs", features = ["groth16", "opencl"] }
 blake2b_simd = "1"
-bls12_381 = "0.7"
 blstrs = { version = "0.6.0", features = ["__private_bench"] }
 byteorder = "1"
 directories = { version = "4", optional = true }
 ff = "0.12"
 group = "0.12"
-jubjub = { path = "../../jubjub" }
+jubjub = { git = "https://github.com/iron-fish/jubjub.git", branch = "blstrs" }
 lazy_static = "1"
 minreq = { version = "2", features = ["https"], optional = true }
 rand_core = "0.6"
