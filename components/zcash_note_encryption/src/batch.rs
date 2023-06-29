@@ -29,7 +29,7 @@ pub fn try_compact_note_decryption<D: BatchDomain, Output: ShieldedOutput<D, COM
     batch_note_decryption(ivks, outputs, try_compact_note_decryption_inner)
 }
 
-fn batch_note_decryption<D: BatchDomain, Output: ShieldedOutput<D, CS>, F, FR, const CS: usize>(
+pub fn batch_note_decryption<D: BatchDomain, Output: ShieldedOutput<D, CS>, F, FR, const CS: usize>(
     ivks: &[D::IncomingViewingKey],
     outputs: &[(D, Output)],
     decrypt_inner: F,
