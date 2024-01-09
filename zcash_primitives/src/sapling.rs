@@ -188,6 +188,13 @@ impl ProofGenerationKey {
             nk: *constants::PROOF_GENERATION_KEY_GENERATOR * self.nsk,
         }
     }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut res = vec![];
+        res.extend(self.ak.to_bytes());
+        res.extend(self.nsk.to_bytes());
+        res
+    }
 }
 
 #[derive(Debug, Clone)]
