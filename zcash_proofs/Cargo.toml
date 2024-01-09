@@ -19,11 +19,13 @@ all-features = true
 bellperson = { git = "https://github.com/iron-fish/bellperson.git", branch = "blstrs", features = ["groth16"] }
 blake2b_simd = "1"
 blstrs = { version = "0.6.0", features = ["__private_bench"] }
+blst = "0.3.10"
 byteorder = "1"
 directories = { version = "4", optional = true }
 ff = "0.12"
 group = "0.12"
-jubjub = { git = "https://github.com/iron-fish/jubjub.git", branch = "blstrs" }
+# jubjub = { git = "https://github.com/iron-fish/jubjub.git", branch = "blstrs" }
+jubjub = { path = "../../jubjub" }
 lazy_static = "1"
 minreq = { version = "2", features = ["https"], optional = true }
 rand_core = "0.6"
