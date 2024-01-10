@@ -33,8 +33,8 @@ group = "0.12"
 hdwallet = { version = "0.3.1", optional = true }
 hex = "0.4"
 incrementalmerkletree = "0.3"
-# jubjub = { git = "https://github.com/iron-fish/jubjub.git", branch = "blstrs" }
-jubjub = { path = "../../jubjub" }
+jubjub = { git = "https://github.com/oreoslabs/jubjub.git", branch = "blstrs" }
+# jubjub = { path = "../../jubjub" }
 blst = "0.3.10"
 lazy_static = "1"
 memuse = "0.2"
