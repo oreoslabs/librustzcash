@@ -20,6 +20,7 @@ use std::array::TryFromSliceError;
 use std::convert::{TryFrom, TryInto};
 use std::io::{self, Read, Write};
 use subtle::{Choice, ConstantTimeEq};
+use jubjub::{ExtendedPoint, SubgroupPoint};
 
 use crate::{
     constants::{self, SPENDING_KEY_GENERATOR},
@@ -189,11 +190,31 @@ impl ProofGenerationKey {
         }
     }
 
+    pub fn to_bytes_le(&self) -> Vec<u8> {
+        let mut res = vec![];
+        res.extend(self.ak.to_bytes_le());
+        res.extend(self.nsk.to_bytes());
+        res
+    }
+
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut res = vec![];
         res.extend(self.ak.to_bytes());
         res.extend(self.nsk.to_bytes());
         res
+    }
+
+    pub fn read<R: std::io::Read>(reader: &mut R) -> Result<Self, std::io::Error> {
+        let mut ak = [0u8; 160];
+        reader.read_exact(&mut ak)?;
+        let ak = SubgroupPoint::from_bytes_le(&ak);
+        let mut nsk = [0u8; 32];
+        reader.read_exact(&mut nsk)?;
+        let nsk = jubjub::Fr::from_bytes(&nsk).unwrap();
+        Ok(Self {
+            ak,
+            nsk,
+        })
     }
 }
 
